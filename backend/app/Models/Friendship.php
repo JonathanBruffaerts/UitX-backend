@@ -10,8 +10,6 @@ use InvalidArgumentException;
 #[Fillable(['requester_id', 'addressee_id', 'status'])]
 class Friendship extends Model
 {
-    protected $primaryKey = null;
-
     protected static function booted(): void
     {
         static::saving(function (Friendship $friendship) {

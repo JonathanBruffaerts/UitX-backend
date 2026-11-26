@@ -1,73 +1,38 @@
 <?php
 
 use App\Http\Controllers\AuthController;
-use Illuminate\Http\Request;
+use App\Http\Controllers\EventController;
+use App\Http\Controllers\FriendController;
+use App\Http\Controllers\UserEventController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/user', function (Request $request) {
-    return $request->user();
-})->middleware('auth:sanctum');
-
-
+// Accounts (publiek)
 Route::post('/register', [AuthController::class, 'register'])->name('register');
 Route::post('/login', [AuthController::class, 'login'])->name('login');
 
+// Events (publiek)
+Route::get('/events', [EventController::class, 'index'])->name('events.index');
+Route::get('/events/{eventId}', [EventController::class, 'show'])->name('events.show');
+
+// Beveiligde routes (Sanctum token vereist)
 Route::middleware('auth:sanctum')->group(function () {
+    // Account
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
-
     Route::get('/me', [AuthController::class, 'me'])->name('me.show');
-
     Route::patch('/me', [AuthController::class, 'updateMe'])->name('me.update');
 
-    Route::get('/users', function () {
-        return response()->json(['message' => 'Not implemented'], 501);
-    })->name('users.index');
+    // Vrienden
+    Route::get('/users', [FriendController::class, 'indexUsers'])->name('users.index');
+    Route::get('/friends', [FriendController::class, 'index'])->name('friends.index');
+    Route::post('/friends/{user}', [FriendController::class, 'request'])->name('friends.request');
+    Route::post('/friends/{user}/accept', [FriendController::class, 'accept'])->name('friends.accept');
+    Route::delete('/friends/{user}', [FriendController::class, 'destroy'])->name('friends.destroy');
 
-    Route::get('/friends', function () {
-        return response()->json(['message' => 'Not implemented'], 501);
-    })->name('friends.index');
-
-    Route::post('/friends/{user}', function (string $user) {
-        return response()->json(['message' => 'Not implemented', 'user' => $user], 501);
-    })->name('friends.request');
-
-    Route::post('/friends/{user}/accept', function (string $user) {
-        return response()->json(['message' => 'Not implemented', 'user' => $user], 501);
-    })->name('friends.accept');
-
-    Route::delete('/friends/{user}', function (string $user) {
-        return response()->json(['message' => 'Not implemented', 'user' => $user], 501);
-    })->name('friends.destroy');
-
-    Route::get('/me/events', function () {
-        return response()->json(['message' => 'Not implemented'], 501);
-    })->name('me.events');
-
-    Route::post('/events/{eventId}/going', function (string $eventId) {
-        return response()->json(['message' => 'Not implemented', 'eventId' => $eventId], 501);
-    })->name('events.going.store');
-
-    Route::delete('/events/{eventId}/going', function (string $eventId) {
-        return response()->json(['message' => 'Not implemented', 'eventId' => $eventId], 501);
-    })->name('events.going.destroy');
-
-    Route::post('/events/{eventId}/save', function (string $eventId) {
-        return response()->json(['message' => 'Not implemented', 'eventId' => $eventId], 501);
-    })->name('events.save.store');
-
-    Route::delete('/events/{eventId}/save', function (string $eventId) {
-        return response()->json(['message' => 'Not implemented', 'eventId' => $eventId], 501);
-    })->name('events.save.destroy');
-
-    Route::get('/friends/events', function () {
-        return response()->json(['message' => 'Not implemented'], 501);
-    })->name('friends.events');
+    // Mijn events & vrienden-events
+    Route::get('/me/events', [UserEventController::class, 'index'])->name('me.events');
+    Route::post('/events/{eventId}/going', [UserEventController::class, 'setGoing'])->name('events.going.store');
+    Route::delete('/events/{eventId}/going', [UserEventController::class, 'unsetGoing'])->name('events.going.destroy');
+    Route::post('/events/{eventId}/save', [UserEventController::class, 'save'])->name('events.save.store');
+    Route::delete('/events/{eventId}/save', [UserEventController::class, 'unsave'])->name('events.save.destroy');
+    Route::get('/friends/events', [UserEventController::class, 'friendsEvents'])->name('friends.events');
 });
-
-Route::get('/events', function () {
-    return response()->json(['message' => 'Not implemented'], 501);
-})->name('events.index');
-
-Route::get('/events/{eventId}', function (string $eventId) {
-    return response()->json(['message' => 'Not implemented', 'eventId' => $eventId], 501);
-})->name('events.show');

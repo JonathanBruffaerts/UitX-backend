@@ -9,12 +9,13 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('friendships', function (Blueprint $table) {
+            $table->id();
             $table->unsignedBigInteger('requester_id');
             $table->unsignedBigInteger('addressee_id');
             $table->enum('status', ['pending', 'accepted'])->default('pending');
             $table->timestamps();
 
-            $table->primary(['requester_id', 'addressee_id']);
+            $table->unique(['requester_id', 'addressee_id']);
             $table->foreign('requester_id')->references('id')->on('users')->cascadeOnDelete();
             $table->foreign('addressee_id')->references('id')->on('users')->cascadeOnDelete();
         });

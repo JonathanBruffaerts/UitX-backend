@@ -9,6 +9,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('user_events', function (Blueprint $table) {
+            $table->id();
             $table->unsignedBigInteger('user_id');
             $table->string('event_id', 100);
             $table->boolean('is_going')->default(false);
@@ -16,7 +17,7 @@ return new class extends Migration
             $table->boolean('reminder_sent')->default(false);
             $table->timestamp('updated_at')->useCurrent()->useCurrentOnUpdate();
 
-            $table->primary(['user_id', 'event_id']);
+            $table->unique(['user_id', 'event_id']);
             $table->foreign('user_id')->references('id')->on('users')->cascadeOnDelete();
             $table->index(['event_id', 'is_going'], 'idx_user_events_event_going');
         });

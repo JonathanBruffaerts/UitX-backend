@@ -35,4 +35,9 @@ return [
         ],
     ],
 
+    'uitdatabank' => [
+        'key' => env('UITDATABANK_API_KEY'),
+        'base_url' => env('UITDATABANK_BASE_URL', 'https://search-test.uitdatabank.be'),
+    ],
+
 ];

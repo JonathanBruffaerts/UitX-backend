@@ -9,8 +9,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 #[Fillable(['user_id', 'event_id', 'is_going', 'is_saved', 'reminder_sent'])]
 class UserEvent extends Model
 {
-    protected $primaryKey = null;
-
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
