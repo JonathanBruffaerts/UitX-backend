@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Friendship;
 use App\Models\User;
+use App\Services\ExpoPushService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -40,7 +41,7 @@ class FriendController extends Controller
         return response()->json($friendships);
     }
 
-    public function request(Request $request, User $user): JsonResponse
+    public function request(Request $request, User $user, ExpoPushService $push): JsonResponse
     {
         $requesterId = $request->user()->getKey();
 
@@ -70,10 +71,20 @@ class FriendController extends Controller
             'status' => 'pending',
         ]);
 
+        $push->send(
+            token: $user->expo_push_token,
+            title: 'Nieuw vriendschapsverzoek',
+            body: "{$request->user()->name} wil vrienden met je worden op UiTX.",
+            data: [
+                'type' => 'friend_request',
+                'user_id' => $requesterId,
+            ]
+        );
+
         return response()->json($friendship, 201);
     }
 
-    public function accept(Request $request, User $user): JsonResponse
+    public function accept(Request $request, User $user, ExpoPushService $push): JsonResponse
     {
         $friendship = Friendship::query()
             ->where('requester_id', $user->getKey())
@@ -86,6 +97,16 @@ class FriendController extends Controller
         }
 
         $friendship->update(['status' => 'accepted']);
+
+        $push->send(
+            token: $user->expo_push_token,
+            title: 'Vriendschapsverzoek geaccepteerd',
+            body: "{$request->user()->name} heeft je vriendschapsverzoek geaccepteerd!",
+            data: [
+                'type' => 'friend_accepted',
+                'user_id' => $request->user()->getKey(),
+            ]
+        );
 
         return response()->json($friendship);
     }

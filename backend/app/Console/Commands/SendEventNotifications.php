@@ -3,14 +3,19 @@
 namespace App\Console\Commands;
 
 use App\Models\UserEvent;
+use App\Services\ExpoPushService;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Http;
 
 class SendEventNotifications extends Command
 {
     protected $signature = 'events:send-notifications';
 
     protected $description = 'Verstuur Expo push-meldingen voor herinneringen, check-ins en ratings';
+
+    public function __construct(private ExpoPushService $push)
+    {
+        parent::__construct();
+    }
 
     public function handle(): int
     {
@@ -26,7 +31,7 @@ class SendEventNotifications extends Command
             ->get();
 
         foreach ($dayBeforeEvents as $entry) {
-            $sent = $this->sendExpoPush(
+            $sent = $this->push->send(
                 token: $entry->user->expo_push_token,
                 title: 'Morgen is het zover!',
                 body: "Ga je morgen nog steeds naar {$entry->event->title}?",
@@ -49,7 +54,7 @@ class SendEventNotifications extends Command
             ->get();
 
         foreach ($checkInEvents as $entry) {
-            $sent = $this->sendExpoPush(
+            $sent = $this->push->send(
                 token: $entry->user->expo_push_token,
                 title: 'Ben je er al?',
                 body: "Check in bij {$entry->event->title} zodat je vrienden zien dat je er bent!",
@@ -72,7 +77,7 @@ class SendEventNotifications extends Command
             ->get();
 
         foreach ($reviewEvents as $entry) {
-            $sent = $this->sendExpoPush(
+            $sent = $this->push->send(
                 token: $entry->user->expo_push_token,
                 title: 'Hoe was het?',
                 body: "Geef {$entry->event->title} een score van 0 tot 5 sterren.",
@@ -89,16 +94,4 @@ class SendEventNotifications extends Command
         return self::SUCCESS;
     }
 
-    private function sendExpoPush(string $token, string $title, string $body, array $data = []): bool
-    {
-        $response = Http::acceptJson()->post('https://exp.host/--/api/v2/push/send', [
-            'to' => $token,
-            'sound' => 'default',
-            'title' => $title,
-            'body' => $body,
-            'data' => $data,
-        ]);
-
-        return $response->successful();
-    }
 }
