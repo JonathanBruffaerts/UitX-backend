@@ -77,6 +77,7 @@ class AuthController extends Controller
             'name' => ['sometimes', 'string', 'max:100'],
             'avatar_url' => ['sometimes', 'nullable', 'url', 'max:500'],
             'language' => ['sometimes', 'string', 'in:nl,fr,en'],
+            'expo_push_token' => ['sometimes', 'nullable', 'string', 'max:255'],
         ]);
 
         $user = $request->user();

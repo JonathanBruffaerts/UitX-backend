@@ -34,5 +34,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/events/{eventId}/going', [UserEventController::class, 'unsetGoing'])->name('events.going.destroy');
     Route::post('/events/{eventId}/save', [UserEventController::class, 'save'])->name('events.save.store');
     Route::delete('/events/{eventId}/save', [UserEventController::class, 'unsave'])->name('events.save.destroy');
+    Route::post('/events/{eventId}/check-in', [UserEventController::class, 'checkIn'])->name('events.check-in');
+    Route::post('/events/{eventId}/rate', [UserEventController::class, 'rate'])->name('events.rate');
     Route::get('/friends/events', [UserEventController::class, 'friendsEvents'])->name('friends.events');
 });

@@ -51,6 +51,30 @@ class UserEventController extends Controller
         return response()->json($entry);
     }
 
+    public function checkIn(Request $request, string $eventId): JsonResponse
+    {
+        $entry = $this->updateState($request, $eventId, 'checked_in', true);
+
+        return response()->json($entry);
+    }
+
+    public function rate(Request $request, string $eventId): JsonResponse
+    {
+        $validated = $request->validate([
+            'rating' => ['required', 'integer', 'min:0', 'max:5'],
+        ]);
+
+        $entry = UserEvent::query()->firstOrNew([
+            'user_id' => $request->user()->getKey(),
+            'event_id' => $eventId,
+        ]);
+
+        $entry->rating = $validated['rating'];
+        $entry->save();
+
+        return response()->json($entry->load('event'));
+    }
+
     public function friendsEvents(Request $request): JsonResponse
     {
         $userId = $request->user()->getKey();
