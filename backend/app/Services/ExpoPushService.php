@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class ExpoPushService
 {
@@ -11,6 +12,13 @@ class ExpoPushService
         if (! $token) {
             return false;
         }
+
+        Log::info('Sending Expo push', [
+            'to' => $token,
+            'title' => $title,
+            'body' => $body,
+            'data' => $data,
+        ]);
 
         $response = Http::acceptJson()->post('https://exp.host/--/api/v2/push/send', [
             'to' => $token,
